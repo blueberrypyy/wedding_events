@@ -1,0 +1,29 @@
+{% extends 'events/base.html' %}
+
+{% block content %}
+<center>
+<h1>Add Venue to Database</h1>
+<br/>
+<br/>
+{% if submitted %}
+    Your venue was submitted successfully!
+
+{% else %}
+<div class='container'>
+    <div class='row'>
+        <div class='col d-flex justify-content-center'>
+<form action='' method=POST>
+    {% csrf_token %}
+    {{ form.as_p}}
+
+    <input type='submit' value='submit' class='btn btn-secondary'>
+</form>
+</div>
+</div>
+</div>
+{% endif %}
+
+</center>
+
+{% endblock content %}
+

@@ -1,0 +1,236 @@
+from django.shortcuts import render, redirect
+import calendar
+from calendar import HTMLCalendar
+from datetime import datetime
+from django.http import HttpResponseRedirect
+from .models import Event, Venue
+from .forms import VenueForm, EventForm
+from django.http import HttpResponse
+import csv
+
+#import pdf stuff
+from django.http import FileResponse
+import io
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+from reportlab.lib.pagesizes import letter
+
+# Import pagination stuff
+from django.core.paginator import Paginator
+
+
+# Geneate PDF of venues
+def venue_pdf(request):
+    # Create bytestream bffer
+    buf = io.BytesIO()
+    # Create canvas
+    c = canvas.Canvas(buf, pagesize=letter, bottomup=0)
+    # Create text object 
+    textob = c.beginText()
+    textob.setTextOrigin(inch, inch)
+    textob.setFont("Helvetica", 14)
+
+    # Add some lines of text
+    lines = ["this is line 1\n",
+            "this is line2\n",
+            "this is line3\n\n",
+            "I am awesome\n"]
+
+    # Deignate the model 
+    venues = Venue.objects.all()
+
+    # Create a blank list 
+    lines =[]
+
+    for venue in venues:
+        lines.append(venue.name)
+        lines.append(venue.address)
+        lines.append(venue.zip_code)
+        lines.append(venue.phone)
+        lines.append(venue.web)
+        lines.append(venue.email_address)
+        lines.append(' ')
+
+    # Loop
+    for line in lines:
+        textob.textLine(line)
+
+    # Finish up
+    c.drawText(textob)
+    c.showPage()
+    c.save()
+    buf.seek(0)
+
+    # return something
+    return FileResponse(buf, as_attachment=True, filename='venues.pdf')
+
+
+# Generate csv file
+def venue_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=venues.csv'
+
+    # Create a csv writer
+    writer = csv.writer(response)
+
+    # Designate the model 
+    venues = Venue.objects.all()
+
+    # Add column headings for csv file
+    writer.writerow(['Venue Name', 'Address', 'Zip Code', 'Phone', 'Website', 'Email Address'])
+
+    # Loop thru and output
+    for venue in venues:
+        writer.writerow([venue.name, venue.address, venue.zip_code, venue.phone, venue.web, venue.email_address])
+
+    return response
+
+
+# Generate text file
+def venue_text(request):
+    response = HttpResponse(content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=venues.txt'
+    # Designate the model
+    venues = Venue.objects.all()
+
+    # Create blank list
+    lines = []
+    # Loop thru and output
+    for venue in venues:
+        lines.append(f'{venue.name}\n{venue.address}\n{venue.zip_code}\n{venue.phone}\n{venue.web}\n{venue.email_address}\n\n')
+    #lines = ["this is line 1\n",
+    #        "this is line2\n",
+    #        "this is line3\n\n",
+    #        "I am awesome\n"]
+
+    # Write to text file
+    response.writelines(lines)
+    return response 
+
+def delete_venue(request, venue_id):
+    venue = Venue.objects.get(pk=venue_id)
+    venue.delete()
+    return redirect('list_venues')
+
+def delete_event(request, event_id):
+    event = Event.objects.get(pk=event_id)
+    event.delete()
+    return redirect('events_list')
+
+def update_event(request, event_id):
+    event = Event.objects.get(pk=event_id)
+    form = EventForm(request.POST or None, instance=event)
+    if form.is_valid():
+        form.save()
+        return redirect('events_list')
+
+    return render(request, 'events/update_event.html', {'event': event, 'form': form, })
+
+
+def add_event(request):
+    submitted = False
+    if request.method == 'POST':
+        form = EventForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/add_event?submitted=True')
+
+        else: 
+            form = EventForm  
+            if 'submitted' in request.GET:
+                submit = True
+
+    return render(request, 'events/add_event.html', {'form': form})
+
+
+def update_venue(request, venue_id):
+    venue = Venue.objects.get(pk=venue_id)
+    form = VenueForm(request.POST or None, instance=venue)
+    if form.is_valid():
+        form.save()
+        return redirect('list_venues')
+
+    return render(request, 'events/update_venue.html', {'venue': venue, 'form': form, })
+
+
+def search_venues(request):
+    if request.method == 'POST':
+        searched = request.POST['searched']
+        venues = Venue.objects.filter(name__contains=searched)
+
+        return render(request, 'events/search_venues.html', {'searched': searched, 'venues': venues, })
+    else:
+        return render(request, 'events/search_venues.html', {})
+
+def list_venues(request):
+    venue_list = Venue.objects.all().order_by('name')
+
+    # Set up pagination
+    p = Paginator(Venue.objects.all(), 2)
+    page = request.GET.get('page')
+    venues = p.get_page(page)
+
+    return render(request, 'events/venues.html', {'venue_list': venue_list, 'venues': venues,})
+
+def show_venue(request, venue_id):
+    venue = Venue.objects.get(pk=venue_id)
+    return render(request, 'events/show_venue.html', {'venue': venue})
+
+def add_venue(request):
+    submitted = False
+    if request.method == 'POST':
+        form = VenueForm(request.POST)
+        if form.is_valid:
+            form.save()
+            return HttpResponseRedirect('/add_venue?submitted=True') 
+
+    else: 
+        form = VenueForm
+        if 'submitted' in request.GET:
+            submitted = True
+
+    return render(request, 'events/add_venue.html', {'form': form, 'submitted': submitted})
+
+
+def all_events(request):
+    event_list = Event.objects.all().order_by('venue')
+    return render(request, 'events/events_list.html', 
+            {'event_list': event_list})
+
+
+def homePageView(request, year=datetime.now().year, month=datetime.now().strftime('%B')):
+    name = 'user'
+    month = month.title()
+
+    # Convert month to number
+    month_number = list(calendar.month_name).index(month)
+    month_number = int(month_number)
+
+    # Create calendar
+    cal = HTMLCalendar().formatmonth(year, month_number)
+
+    # Get current year 
+    now = datetime.now()
+    current_year = now.year
+
+    return render(request, 'events/home.html', {
+            'name': name,
+            'year': year,
+            'month': month,
+            'month_number': month_number,
+            'cal': cal,
+            'current_year': current_year,
+            })
+
+def landingPageView(request):
+    return render(request, 'events/landing_page_main.html', {})
+
+def test1(request):
+    return render(request, 'events/test_typing.html', {})
+
+def test2(request):
+    return render(request, 'events/test_waves.html', {})
+
+
+
+
