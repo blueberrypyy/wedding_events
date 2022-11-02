@@ -19,26 +19,19 @@
             <a class="nav-link" href="{% url 'list_venues' %}">Venues</a>
         </li>
 
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'add_venue' %}">+ Add venue</a>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Add Venue/Event 
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'add_venue' %}">+ Add venue</a></li>
+            <li><a class="dropdown-item" href="{% url 'add_event' %}">+ Add event</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
         </li>
 
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'add_event' %}">+ Add event</a>
-        </li>
 
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'venue_text' %}">Download venue.txt</a>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'venue_csv' %}">Download venue.csv</a>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'venue_pdf' %}">Download venue.pdf</a>
-        </li>
-                
       </ul>
       <form class="d-flex" method='POST' role="search" action='{% url "search_venues" %}'>
           {% csrf_token%}

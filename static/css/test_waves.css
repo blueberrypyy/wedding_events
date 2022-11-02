@@ -15,7 +15,7 @@ body {
     width: 100vw;
     background-size: 600% 100%;
     background-repeat: no-repeat;
-    animation: mygradient 24s linear infinite alternate
+    animation: mygradient 40s linear infinite alternate
 
 }
 
@@ -48,8 +48,8 @@ body {
     height: 600vw;
     background: rgba(0, 0, 0, .375);
     border-radius: 48% 52% 52% 48% / 48% 52% 48% 52%;
-    animation: wave 9s ease-in-out infinite;
-    animation-delay: -3s
+    animation: wave 20s ease-in-out infinite;
+    animation-delay: -8s
 }
 
 #wave:after {
@@ -62,7 +62,7 @@ body {
     height: 600vw;
     background: rgba(0, 0, 0, .375);
     border-radius: 48% 52% 52% 48% / 48% 52% 48% 52%;
-    animation: wave 9s linear infinite
+    animation: wave 20s linear infinite
 }
 
 /* ------ Extras -----------*/
