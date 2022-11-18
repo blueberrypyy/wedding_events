@@ -22,14 +22,6 @@ from django.core.paginator import Paginator
 
 from django.contrib.auth.models import User
 
-def my_events(request):
-    if request.user.is_authenticated:
-        me = request.user.id
-        return render(request, 'events/my_events.html', {'me': me})
-    else: 
-        messages.success(request, 'You are not authorized to view this page.')
-        return redirect('home')
-
 # Geneate PDF of venues
 def venue_pdf(request):
     # Create bytestream bffer
@@ -197,6 +189,15 @@ def update_event(request, event_id):
         return redirect('events_list')
 
     return render(request, 'events/update_event.html', {'event': event, 'form': form, })
+
+def my_events(request):
+    if request.user.is_authenticated:
+        me = request.user.id
+        my_events = Event.objects.filter(attendees=me)
+        return render(request, 'events/my_events.html', {'my_events': my_events})
+    else: 
+        messages.success(request, 'You are not authorized to view this page.')
+        return redirect('home')
 
 
 def add_event(request):
