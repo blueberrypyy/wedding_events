@@ -3,9 +3,11 @@ import calendar
 from calendar import HTMLCalendar
 from datetime import datetime
 from django.http import HttpResponseRedirect
-from .models import Event, Venue
-from .forms import VenueForm, EventForm
+from django.contrib.auth.models import User
+from .models import Event, Venue, MyClubUser
+from .forms import VenueForm, EventForm, EventFormAdmin
 from django.http import HttpResponse
+from django.contrib import messages
 import csv
 
 #import pdf stuff
@@ -18,6 +20,15 @@ from reportlab.lib.pagesizes import letter
 # Import pagination stuff
 from django.core.paginator import Paginator
 
+from django.contrib.auth.models import User
+
+def my_events(request):
+    if request.user.is_authenticated:
+        me = request.user.id
+        return render(request, 'events/my_events.html', {'me': me})
+    else: 
+        messages.success(request, 'You are not authorized to view this page.')
+        return redirect('home')
 
 # Geneate PDF of venues
 def venue_pdf(request):
@@ -107,42 +118,6 @@ def venue_text(request):
     response.writelines(lines)
     return response 
 
-def delete_venue(request, venue_id):
-    venue = Venue.objects.get(pk=venue_id)
-    venue.delete()
-    return redirect('list_venues')
-
-def delete_event(request, event_id):
-    event = Event.objects.get(pk=event_id)
-    event.delete()
-    return redirect('events_list')
-
-def update_event(request, event_id):
-    event = Event.objects.get(pk=event_id)
-    form = EventForm(request.POST or None, instance=event)
-    if form.is_valid():
-        form.save()
-        return redirect('events_list')
-
-    return render(request, 'events/update_event.html', {'event': event, 'form': form, })
-
-
-def add_event(request):
-    submitted = False
-    if request.method == 'POST':
-        form = EventForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('/add_event?submitted=True')
-
-        else: 
-            form = EventForm  
-            if 'submitted' in request.GET:
-                submit = True
-
-    return render(request, 'events/add_event.html', {'form': form})
-
-
 def update_venue(request, venue_id):
     venue = Venue.objects.get(pk=venue_id)
     form = VenueForm(request.POST or None, instance=venue)
@@ -166,7 +141,7 @@ def list_venues(request):
     venue_list = Venue.objects.all().order_by('name')
 
     # Set up pagination
-    p = Paginator(Venue.objects.all(), 2)
+    p = Paginator(Venue.objects.all(), 4)
     page = request.GET.get('page')
     venues = p.get_page(page)
     nums = 'a' * venues.paginator.num_pages
@@ -175,14 +150,19 @@ def list_venues(request):
 
 def show_venue(request, venue_id):
     venue = Venue.objects.get(pk=venue_id)
-    return render(request, 'events/show_venue.html', {'venue': venue})
+    # take id (num) and convert it to owner name
+    venue_owner = User.objects.get(pk=venue.owner)
+    return render(request, 'events/show_venue.html', {'venue': venue, 'venue_owner': venue_owner})
 
 def add_venue(request):
     submitted = False
     if request.method == 'POST':
         form = VenueForm(request.POST)
+        # Save user id to the event in backend whenever they add an event 
         if form.is_valid:
-            form.save()
+            venue = form.save(commit=False)
+            venue.owner = request.user.id # Logged in user
+            venue.save()
             return HttpResponseRedirect('/add_venue?submitted=True') 
 
     else: 
@@ -193,14 +173,71 @@ def add_venue(request):
     return render(request, 'events/add_venue.html', {'form': form, 'submitted': submitted})
 
 
+def delete_venue(request, venue_id):
+    venue = Venue.objects.get(pk=venue_id)
+    venue.delete()
+    return redirect('list_venues')
+
+def delete_event(request, event_id):
+    event = Event.objects.get(pk=event_id)
+    # make sure only event manager can delete without using url
+    if request.user == event.manager:
+        event.delete()
+        messages.success(request, 'Event deleted successfully.')
+        return redirect('events_list')
+    else:
+        messages.success(request, 'You must be the event manager to delete an event.')
+        return redirect('events_list')
+
+def update_event(request, event_id):
+    event = Event.objects.get(pk=event_id)
+    form = EventForm(request.POST or None, instance=event)
+    if form.is_valid():
+        form.save()
+        return redirect('events_list')
+
+    return render(request, 'events/update_event.html', {'event': event, 'form': form, })
+
+
+def add_event(request):
+    submitted = False
+    if request.method == 'POST':
+        # Render different form if user is admin or not 
+        if request.user.is_superuser:
+            form = EventFormAdmin(request.POST)
+            if form.is_valid():
+                event = form.save(commit=False)
+                event.manager = request.user # Logged in user
+                event.save()
+                return HttpResponseRedirect('/add_event?submitted=True')
+        else:
+            form = EventForm(request.POST)
+            if form.is_valid():
+                event = form.save(commit=False)
+                event.manager = request.user # Logged in user
+                event.save()
+                return HttpResponseRedirect('/add_event?submitted=True')
+
+    else: 
+        # Just going to the page not submitting
+        if request.user.is_superuser:
+            form = EventFormAdmin
+        else:
+            form = EventForm
+
+        if 'submitted' in request.GET:
+            submitted = True
+
+    return render(request, 'events/add_event.html', {'form': form, 'submitted': submitted})
+
 def all_events(request):
-    event_list = Event.objects.all().order_by('venue')
+    event_list = Event.objects.all()
     return render(request, 'events/events_list.html', 
             {'event_list': event_list})
 
 
 def homePageView(request, year=datetime.now().year, month=datetime.now().strftime('%B')):
-    name = 'user'
+    name = '' 
     month = month.title()
 
     # Convert month to number

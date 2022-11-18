@@ -11,25 +11,60 @@
             <a class="nav-link" href="{% url 'home' '2022' 'March' %}">March</a>
         </li>
 
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'events_list' %}">Events</a>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'list_venues' %}">Venues</a>
-        </li>
-
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Add Venue/Event 
+            <a class="nav-link dropdown-toggle" href="{% url 'events_list' %}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Events 
           </a>
+
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{% url 'add_venue' %}">+ Add venue</a></li>
+            <li><a class="dropdown-item" href="{% url 'events_list' %}">All events</a></li>
+            <li><a class="dropdown-item" href="{% url 'my_events' %}">My events</a></li>
             <li><a class="dropdown-item" href="{% url 'add_event' %}">+ Add event</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#">Something else here</a></li>
           </ul>
         </li>
+
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="{% url 'list_venues' %}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Venues 
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'list_venues' %}">All venues</a></li>
+            <li><a class="dropdown-item" href="{% url 'add_venue' %}">+ Add venue</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="{% url 'events_list' %}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Download 
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'venue_text' %}">Download venue.txt</a></li>
+            <li><a class="dropdown-item" href="{% url 'venue_csv' %}">Download venue.csv</a></li>
+            <li><a class="dropdown-item" href="{% url 'venue_pdf' %}">Download venue.pdf</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </li>
+
+
+        {% if user.is_authenticated %}
+        <li class="nav-item">
+            <a class="btn btn-outline-danger" href="{% url 'logout_user' %}">Logout</a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+            <a class="btn btn-outline-info" href="{% url 'register_user' %}">Signup</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="btn btn-outline-secondary" href="{% url 'login_user' %}">Login</a>
+        </li>
+        {% endif %}
 
 
       </ul>

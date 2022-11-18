@@ -9,9 +9,13 @@
     {% for venue in venues %}
     <tr>
         <td><a href='{% url "show_venue" venue.id %}'>{{ venue }}</a><br/></td>
+        {% if user.is_authenticated %}
         <td align='right'><a class='btn btn-outline-secondary btn-sm' href='{% url "update_venue" venue.id %}'>Update</a>
         <a class='btn btn-outline-danger btn-sm' href='{% url "delete_venue" venue.id %}'>Delete</a></td>
     </tr>
+        
+        {% else %}
+        {% endif %}
 
 {% endfor %}
 </table>
@@ -23,8 +27,8 @@
 <nav aria-label="Page navigation example">
 <ul class="pagination justify-content-center">
 {% if venues.has_previous %}
-    <li class="page-item"><a class='page-link' href='?page=1'>&laquo</a></li>
-    <li class="page-item"><a class='page-link' href='?page={{ venues.previous_page_number }}'>Previous</a></li>
+    <li class="page-item"><a class='page-link' href='?page=1'>First</a></li>
+    <li class="page-item"><a class='page-link' href='?page={{ venues.previous_page_number }}'>&laquo</a></li>
 {% endif %}
 
 <!--
@@ -36,8 +40,8 @@
 {% endfor %}
 
 {% if venues.has_next %}
-    <li class="page-item"><a class='page-link' href='?page={{ venues.next_page_number }}'>Next</a></li>
-    <li class="page-item"><a class='page-link' href='?page={{ venues.paginator.num_pages }}'>&raquo</a></li>
+    <li class="page-item"><a class='page-link' href='?page={{ venues.next_page_number }}'>&raquo</a></li>
+    <li class="page-item"><a class='page-link' href='?page={{ venues.paginator.num_pages }}'>Last</a></li>
 {% endif %}
 </ul>
 </nav>
@@ -45,9 +49,6 @@
 
 </center>
 <hr>
-<a class="" href="{% url 'venue_text' %}">Download venue.txt</a><br/>
-<a class="" href="{% url 'venue_csv' %}">Download venue.csv</a><br/>
-<a class="" href="{% url 'venue_pdf' %}">Download venue.pdf</a><br/>
 
 
 
