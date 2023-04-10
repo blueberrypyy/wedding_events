@@ -1,13 +1,31 @@
 {% extends 'events/base.html' %}
 
 {% block content %}
-<center>
 
     {% if searched %}
         <h1>You searched for {{ searched }}</h1>
         <br/>
         {% for venue in venues %}
-        <a href='{% url "show_venue" venue.id %}'>{{ venue }}</a>
+            <div class="card">
+              <div class="card-header">
+               Venue 
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">{{ venue }}</h5>
+
+                <p class="card-text">
+                {{ venue.address }}<br/>
+                {{ venue.zip_code }}<br/>
+                {{ venue.phone }}<br/>
+                {{ venue.web }}<br/>
+                <a href='{{ venue.web }}'>{{ venue.email_address }}</a><br/>
+                Owner: {{ venue.owner }}<br/>
+                </p>
+
+                <!--a href="#" class="btn btn-primary">Go somewhere</a-->
+              </div>
+            </div>
+
         {% endfor %}
 
     {% else %}
@@ -17,7 +35,6 @@
 
 
 
-</center>
 
 {% endblock content %}
 

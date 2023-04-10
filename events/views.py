@@ -124,7 +124,6 @@ def search_venues(request):
     if request.method == 'POST':
         searched = request.POST['searched']
         venues = Venue.objects.filter(name__contains=searched)
-
         return render(request, 'events/search_venues.html', {'searched': searched, 'venues': venues, })
     else:
         return render(request, 'events/search_venues.html', {})
@@ -199,9 +198,18 @@ def my_events(request):
         messages.success(request, 'You are not authorized to view this page.')
         return redirect('home')
 
+def search_events(request):
+    if request.method == 'POST':
+        searched = request.POST['searched']
+        events = Event.objects.filter(description__contains=searched)
+
+        return render(request, 'events/search_events.html', {'searched': searched, 'events': events, })
+    else:
+        return render(request, 'events/search_events.html', {})
 
 def add_event(request):
     submitted = False
+    current_user = request.user
     if request.method == 'POST':
         # Render different form if user is admin or not 
         if request.user.is_superuser:

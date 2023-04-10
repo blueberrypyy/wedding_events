@@ -3,6 +3,12 @@
 {% block content %}
 <h1>Events</h1>
 
+<form class="d-flex" method='POST' role="search" action='{% url "search_events" %}'>
+  {% csrf_token%}
+<input class="form-control me-2" type="search" placeholder="Search events" aria-label="Search" name="searched">
+<button class="btn btn-outline-secondary" type="submit">Search</button>
+</form>
+<br/>
 
 {% for event in event_list %}
 <div class="card">
@@ -22,7 +28,7 @@
             <br/>
             <li>Attendees:</li>
             {% for attendee in event.attendees.all %}
-            {{ attendee }} 
+            {{ attendee }}<br/> 
             {% endfor %}
         </ul>
     </p>
