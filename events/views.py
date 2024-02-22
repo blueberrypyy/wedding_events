@@ -148,7 +148,7 @@ def show_venue(request, venue_id):
 def add_venue(request):
     submitted = False
     if request.method == 'POST':
-        form = VenueForm(request.POST)
+        form = VenueForm(request.POST, request.FILES)
         # Save user id to the event in backend whenever they add an event 
         if form.is_valid:
             venue = form.save(commit=False)
@@ -260,6 +260,9 @@ def homePageView(request, year=datetime.now().year, month=datetime.now().strftim
     now = datetime.now()
     current_year = now.year
 
+    #Query the events model for the dates
+    events_list = Event.objects.filter(event_date__year=year, event_date__month=month_number)
+
     return render(request, 'events/home.html', {
             'name': name,
             'year': year,
@@ -267,6 +270,7 @@ def homePageView(request, year=datetime.now().year, month=datetime.now().strftim
             'month_number': month_number,
             'cal': cal,
             'current_year': current_year,
+            'events_list': events_list
             })
 
 def landingPageView(request):
