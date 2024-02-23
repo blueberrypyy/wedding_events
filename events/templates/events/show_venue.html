@@ -17,8 +17,23 @@
     {{ venue.web }}<br/>
     <a href='{{ venue.web }}'>{{ venue.email_address }}</a><br/>
     Owner: {{ venue_owner }}<br/>
+    {% if venue.venue_image %}
     <img style='width: 50%; height:50%;' src='{{ venue.venue_image.url }}'></br>
+    {% else %}
+    {% endif %}
+
     </p>
+    </div>
+
+    {% if user.is_authenticated %}
+    {% if user == event.manager %}
+    <div class='card-footer text-muted'>
+        <a href='{% url "update_venue" venue.id %}' class='btn btn-outline-secondary'>Update</a>
+        <a href='{% url "delete_venue" venue.id %}' class='btn btn-outline-danger'>Delete</a>
+    <div class='btn'>
+
+    {% endif %}
+    {% endif %}
 
     <!--a href="#" class="btn btn-primary">Go somewhere</a-->
   </div>
