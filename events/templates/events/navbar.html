@@ -53,6 +53,7 @@
 
 
         {% if user.is_authenticated %}
+        <li class='nav-item'><a class='nav-link' href='{% url "approve_events" %}'>Dashboard</a></li>
         <li class="nav-item">
             <a class="btn btn-outline-danger" href="{% url 'logout_user' %}">Logout</a>
         </li>

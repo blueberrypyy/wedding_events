@@ -202,10 +202,30 @@ def search_events(request):
     if request.method == 'POST':
         searched = request.POST['searched']
         events = Event.objects.filter(description__contains=searched)
-
         return render(request, 'events/search_events.html', {'searched': searched, 'events': events, })
     else:
         return render(request, 'events/search_events.html', {})
+
+def approve_events(request):
+    events = Event.objects.all().order_by('-event_date')
+    if request.user.is_superuser:
+        if request.method == 'POST':
+            id_list = request.POST.getlist('boxes')
+
+            # Set all approved to false
+            events.update(approved=False)
+
+            # Update database (hack)
+            for x in id_list:
+                Event.objects.filter(pk=int(x)).update(approved=True)
+
+            messages.success(request, 'Event approval updated successfully.')
+            return redirect('approve_events')
+        else:
+            return render(request, 'events/event_approval.html', {'events': events})
+    else:
+        messages.success(request, 'You are not authorized to view this page')
+        return redirect('home')
 
 def add_event(request):
     submitted = False
