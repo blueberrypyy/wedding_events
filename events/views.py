@@ -208,6 +208,7 @@ def search_events(request):
 
 def approve_events(request):
     events = Event.objects.all().order_by('-event_date')
+    venues = Venue.objects.all()
     event_count = events.count()
     venue_count = Venue.objects.all().count()
     user_count = MyClubUser.objects.all().count() 
@@ -224,7 +225,7 @@ def approve_events(request):
             messages.success(request, 'Event approval updated successfully.')
             return redirect('approve_events')
         else:
-            return render(request, 'events/event_approval.html', {'events': events, 'event_count': event_count, 'venue_count': venue_count, 'user_count': user_count})
+            return render(request, 'events/event_approval.html', {'events': events, 'venues': venues, 'event_count': event_count, 'venue_count': venue_count, 'user_count': user_count})
     else:
         messages.success(request, 'You are not authorized to view this page')
         return redirect('home')
