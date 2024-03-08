@@ -208,6 +208,9 @@ def search_events(request):
 
 def approve_events(request):
     events = Event.objects.all().order_by('-event_date')
+    event_count = events.count()
+    venue_count = Venue.objects.all().count()
+    user_count = ''
     if request.user.is_superuser:
         if request.method == 'POST':
             id_list = request.POST.getlist('boxes')
@@ -218,11 +221,10 @@ def approve_events(request):
             # Update database (hack)
             for x in id_list:
                 Event.objects.filter(pk=int(x)).update(approved=True)
-
             messages.success(request, 'Event approval updated successfully.')
             return redirect('approve_events')
         else:
-            return render(request, 'events/event_approval.html', {'events': events})
+            return render(request, 'events/event_approval.html', {'events': events, 'event_count': event_count, 'venue_count': venue_count})
     else:
         messages.success(request, 'You are not authorized to view this page')
         return redirect('home')
