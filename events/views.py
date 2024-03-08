@@ -119,6 +119,10 @@ def update_venue(request, venue_id):
 
     return render(request, 'events/update_venue.html', {'venue': venue, 'form': form, })
 
+def venue_events(request, venue_id):
+    events = Event.venue.all().where(id=pk)
+    return render(request, {'events': events})
+
 
 def search_venues(request):
     if request.method == 'POST':
