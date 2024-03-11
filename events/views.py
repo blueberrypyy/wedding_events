@@ -121,7 +121,7 @@ def update_venue(request, venue_id):
 
 def venue_events(request, venue_id):
     events = Event.venue.all().where(id=pk)
-    return render(request, {'events': events})
+    return render(request, 'events/venue_events.html', {'events': events})
 
 
 def search_venues(request):

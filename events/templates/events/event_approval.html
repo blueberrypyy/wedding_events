@@ -28,7 +28,7 @@
       <tr>
           <td><a href='{% url "show_venue" venue.id %}'>{{ venue }}</a></td>
         <td> 
-            <button class='btn btn-outline-secondary'>Events</button>
+            <a class='btn btn-outline-secondary' href='{% url "venue_events" venue.id %}'>Events</a>
         </td>
         {% endfor %}
       </tr>
