@@ -120,8 +120,13 @@ def update_venue(request, venue_id):
     return render(request, 'events/update_venue.html', {'venue': venue, 'form': form, })
 
 def venue_events(request, venue_id):
-    events = Event.venue.all().where(id=pk)
-    return render(request, 'events/venue_events.html', {'events': events})
+    venue = Venue.objects.get(id=venue_id)
+    events = venue.event_set.all()
+    if events:
+        return render(request, 'events/venue_events.html', {'events': events})
+    else:
+        messages.success(request, 'That venue has no events associated with it.')
+        return redirect('approve_events')
 
 
 def search_venues(request):
@@ -148,6 +153,9 @@ def show_venue(request, venue_id):
     # take id (num) and convert it to owner name
     venue_owner = User.objects.get(pk=venue.owner)
     return render(request, 'events/show_venue.html', {'venue': venue, 'venue_owner': venue_owner})
+
+def show_event(request, event_id):
+    return render(request, 'events/show_event.html')
 
 def add_venue(request):
     submitted = False
