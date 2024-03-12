@@ -1,0 +1,46 @@
+{% extends 'events/base.html' %}
+
+{% block content %}
+<br>
+
+<div class="card">
+  <div class="card-header">
+   Event 
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">{{ Event.name }}</h5>
+
+    <p class="card-text">
+    Date: {{ event.event_date }}<br/>
+    Venue: {{ event.venue }}<br/>
+    Manager: {{ event.manager }}<br/>
+    Description: {{ event.description }}<br/>
+    Attendees: {{ event.attendees }}</br>
+    Approved: {{ event.approved }}</br>
+    </p>
+    </div>
+
+    {% if user.is_authenticated %}
+    {% if user == event.manager %}
+    <div class='card-footer text-muted'>
+        <a href='{% url "update_event" event.id %}' class='btn btn-outline-secondary'>Update</a>
+        <a href='{% url "delete_event" event.id %}' class='btn btn-outline-danger'>Delete</a>
+    <div class='btn'>
+
+    {% endif %}
+    {% endif %}
+
+    <!--a href="#" class="btn btn-primary">Go somewhere</a-->
+  </div>
+</div>
+<br/>
+
+
+<ul>
+    
+
+</ul>
+
+
+
+{% endblock content %}

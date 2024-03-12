@@ -21,8 +21,16 @@
     <img style='width: 50%; height:50%;' src='{{ venue.venue_image.url }}'></br>
     {% else %}
     {% endif %}
-
     </p>
+
+    <h5>Events happening here:</h5></br>
+    {% if events %}
+        {% for event in events %}
+        <a href='{% url "show_event" event.id %}'>{{ event }}</a></br>
+        {% endfor %}
+    {% else %}
+        <p>There are no events happening here..</p>
+    {% endif %}
     </div>
 
     {% if user.is_authenticated %}
